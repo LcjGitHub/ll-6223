@@ -13,6 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { fetchChargers, updateCharger } from './api';
 import { ChargerCard } from './components/ChargerCard';
 import { ChargerEditModal } from './components/ChargerEditModal';
+import { VerificationRecordsDrawer } from './components/VerificationRecordsDrawer';
 import type { Charger, ChargerUpdatePayload } from './types';
 
 /**
@@ -24,6 +25,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Charger | null>(null);
+  const [viewingRecords, setViewingRecords] = useState<Charger | null>(null);
 
   /**
    * 加载充电桩列表数据
@@ -57,6 +59,21 @@ export default function App() {
     setChargers((prev) => prev.map((c) => (c.id === id ? updated : c)));
   };
 
+  /**
+   * 新增核实记录后的回调，更新充电桩的最后核实日期
+   * @param chargerId 充电桩 ID
+   * @param newLastVerifiedDate 新的最后核实日期
+   */
+  const handleRecordAdded = (chargerId: number, newLastVerifiedDate: string) => {
+    setChargers((prev) =>
+      prev.map((c) =>
+        c.id === chargerId
+          ? { ...c, lastVerifiedDate: newLastVerifiedDate }
+          : c
+      )
+    );
+  };
+
   return (
     <Container size="lg" py="xl">
       <Stack gap="lg">
@@ -87,6 +104,7 @@ export default function App() {
                 key={charger.id}
                 charger={charger}
                 onEdit={setEditing}
+                onViewRecords={setViewingRecords}
               />
             ))}
           </SimpleGrid>
@@ -98,6 +116,13 @@ export default function App() {
         opened={editing !== null}
         onClose={() => setEditing(null)}
         onSave={handleSave}
+      />
+
+      <VerificationRecordsDrawer
+        charger={viewingRecords}
+        opened={viewingRecords !== null}
+        onClose={() => setViewingRecords(null)}
+        onRecordAdded={handleRecordAdded}
       />
     </Container>
   );

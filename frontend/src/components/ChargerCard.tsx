@@ -17,13 +17,15 @@ interface ChargerCardProps {
   charger: Charger;
   /** 点击编辑按钮的回调，传入当前充电桩数据 */
   onEdit: (charger: Charger) => void;
+  /** 点击查看记录按钮的回调，传入当前充电桩数据 */
+  onViewRecords: (charger: Charger) => void;
 }
 
 /**
  * 充电桩卡片组件
  * @description 以卡片形式展示单个充电桩的完整信息，包含位置、类型、功率说明与核实日期，提供编辑入口
  */
-export function ChargerCard({ charger, onEdit }: ChargerCardProps) {
+export function ChargerCard({ charger, onEdit, onViewRecords }: ChargerCardProps) {
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
       <Stack justify="space-between" h="100%" gap="sm">
@@ -48,9 +50,14 @@ export function ChargerCard({ charger, onEdit }: ChargerCardProps) {
             最后核实：{charger.lastVerifiedDate}
           </Text>
         </Stack>
-        <Button variant="light" onClick={() => onEdit(charger)}>
-          编辑
-        </Button>
+        <Group grow>
+          <Button variant="light" onClick={() => onViewRecords(charger)}>
+            查看记录
+          </Button>
+          <Button variant="light" onClick={() => onEdit(charger)}>
+            编辑
+          </Button>
+        </Group>
       </Stack>
     </Card>
   );

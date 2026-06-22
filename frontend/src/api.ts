@@ -1,5 +1,10 @@
 import axios from 'axios';
-import type { Charger, ChargerUpdatePayload } from './types';
+import type {
+  Charger,
+  ChargerUpdatePayload,
+  VerificationRecord,
+  VerificationRecordCreatePayload,
+} from './types';
 
 /**
  * @fileoverview API 接口封装模块
@@ -38,5 +43,40 @@ export async function updateCharger(
   payload: ChargerUpdatePayload
 ): Promise<Charger> {
   const { data } = await client.put<Charger>(`/chargers/${id}`, payload);
+  return data;
+}
+
+/**
+ * 获取充电桩核实记录列表
+ * @async
+ * @param {number} chargerId 充电桩唯一标识
+ * @returns {Promise<VerificationRecord[]>} 核实记录数组，按核实日期降序排列
+ * @throws {AxiosError} 网络错误或后端返回非 2xx 状态码时抛出
+ */
+export async function fetchChargerVerifications(
+  chargerId: number
+): Promise<VerificationRecord[]> {
+  const { data } = await client.get<VerificationRecord[]>(
+    `/chargers/${chargerId}/verifications`
+  );
+  return data;
+}
+
+/**
+ * 新增核实记录
+ * @async
+ * @param {number} chargerId 充电桩唯一标识
+ * @param {VerificationRecordCreatePayload} payload 核实记录数据
+ * @returns {Promise<VerificationRecord>} 新增的核实记录对象
+ * @throws {AxiosError} 网络错误或后端返回非 2xx 状态码时抛出
+ */
+export async function createVerificationRecord(
+  chargerId: number,
+  payload: VerificationRecordCreatePayload
+): Promise<VerificationRecord> {
+  const { data } = await client.post<VerificationRecord>(
+    `/chargers/${chargerId}/verifications`,
+    payload
+  );
   return data;
 }

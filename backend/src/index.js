@@ -47,6 +47,21 @@ function toCharger(row) {
 }
 
 /**
+ * 将数据库行对象转换为前端使用的核实记录对象（蛇形命名转驼峰）
+ * @param {Object} row 数据库原始行对象
+ * @returns {Object} 驼峰命名的核实记录对象
+ */
+function toVerificationRecord(row) {
+  return {
+    id: row.id,
+    chargerId: row.charger_id,
+    verificationDate: row.verification_date,
+    note: row.note,
+    createdAt: row.created_at,
+  };
+}
+
+/**
  * @api {get} /api/chargers 获取充电桩列表
  * @apiName GetChargers
  * @apiGroup Chargers
@@ -122,6 +137,91 @@ app.put('/api/chargers/:id', (req, res) => {
   stmt.free();
 
   res.json(toCharger(row));
+});
+
+/**
+ * @api {get} /api/chargers/:id/verifications 获取充电桩核实记录列表
+ * @apiName GetChargerVerifications
+ * @apiGroup VerificationRecords
+ * @apiParam {Number} id 充电桩唯一标识
+ * @apiSuccess {Object[]} - 核实记录数组，按核实日期降序排列
+ * @apiError {404} 充电桩不存在
+ */
+app.get('/api/chargers/:id/verifications', (req, res) => {
+  const chargerId = Number(req.params.id);
+
+  const chargerStmt = db.prepare('SELECT id FROM chargers WHERE id = ?');
+  chargerStmt.bind([chargerId]);
+  const chargerExists = chargerStmt.step();
+  chargerStmt.free();
+
+  if (!chargerExists) {
+    res.status(404).json({ error: '充电桩不存在' });
+    return;
+  }
+
+  const rows = rowsToObjects(
+    db.exec(
+      `SELECT * FROM verification_records
+       WHERE charger_id = ${chargerId}
+       ORDER BY verification_date DESC, created_at DESC`
+    )
+  );
+
+  res.json(rows.map(toVerificationRecord));
+});
+
+/**
+ * @api {post} /api/chargers/:id/verifications 新增核实记录
+ * @apiName CreateVerificationRecord
+ * @apiGroup VerificationRecords
+ * @apiParam {Number} id 充电桩唯一标识
+ * @apiBody {String} verificationDate 核实日期（必填）
+ * @apiBody {String} [note] 核实备注
+ * @apiSuccess {Object} - 新增的核实记录对象
+ * @apiError {400} 必填项缺失
+ * @apiError {404} 充电桩不存在
+ */
+app.post('/api/chargers/:id/verifications', (req, res) => {
+  const chargerId = Number(req.params.id);
+  const { verificationDate, note } = req.body;
+
+  if (!verificationDate) {
+    res.status(400).json({ error: '核实日期为必填项' });
+    return;
+  }
+
+  const chargerStmt = db.prepare('SELECT id FROM chargers WHERE id = ?');
+  chargerStmt.bind([chargerId]);
+  const chargerExists = chargerStmt.step();
+  chargerStmt.free();
+
+  if (!chargerExists) {
+    res.status(404).json({ error: '充电桩不存在' });
+    return;
+  }
+
+  db.run(
+    `INSERT INTO verification_records (charger_id, verification_date, note)
+     VALUES (?, ?, ?)`,
+    [chargerId, verificationDate, note ?? '']
+  );
+
+  db.run(
+    `UPDATE chargers SET last_verified_date = ? WHERE id = ?`,
+    [verificationDate, chargerId]
+  );
+
+  persist();
+
+  const recordId = db.exec('SELECT last_insert_rowid() AS id')[0].values[0][0];
+  const stmt = db.prepare('SELECT * FROM verification_records WHERE id = ?');
+  stmt.bind([recordId]);
+  stmt.step();
+  const row = stmt.getAsObject();
+  stmt.free();
+
+  res.status(201).json(toVerificationRecord(row));
 });
 
 /** 启动服务，监听 3000 端口 */
