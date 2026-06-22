@@ -1,12 +1,10 @@
-/** 饮水点数据 */
-export interface Fountain {
+export interface Charger {
   id: number;
   city: string;
   location: string;
-  type: string;
-  waterQualityNote: string;
-  lastConfirmedDate: string;
+  chargerType: string;
+  powerNote: string;
+  lastVerifiedDate: string;
 }
 
-/** 编辑饮水点时提交的字段 */
-export type FountainUpdatePayload = Omit<Fountain, 'id'>;
+export type ChargerUpdatePayload = Omit<Charger, 'id'>;

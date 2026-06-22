@@ -6,7 +6,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App';
 
 const theme = createTheme({
-  primaryColor: 'cyan',
+  primaryColor: 'green',
   fontFamily: '"Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif',
 });
 

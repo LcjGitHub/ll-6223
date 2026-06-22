@@ -8,45 +8,45 @@ import {
   Title,
 } from '@mantine/core';
 import { useCallback, useEffect, useState } from 'react';
-import { fetchFountains, updateFountain } from './api';
-import { FountainCard } from './components/FountainCard';
-import { FountainEditModal } from './components/FountainEditModal';
-import type { Fountain, FountainUpdatePayload } from './types';
+import { fetchChargers, updateCharger } from './api';
+import { ChargerCard } from './components/ChargerCard';
+import { ChargerEditModal } from './components/ChargerEditModal';
+import type { Charger, ChargerUpdatePayload } from './types';
 
 export default function App() {
-  const [fountains, setFountains] = useState<Fountain[]>([]);
+  const [chargers, setChargers] = useState<Charger[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [editing, setEditing] = useState<Fountain | null>(null);
+  const [editing, setEditing] = useState<Charger | null>(null);
 
-  const loadFountains = useCallback(async () => {
+  const loadChargers = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchFountains();
-      setFountains(data);
+      const data = await fetchChargers();
+      setChargers(data);
     } catch {
-      setError('加载饮水点失败，请确认后端已启动（端口 3000）');
+      setError('加载充电桩失败，请确认后端已启动（端口 3000）');
     } finally {
       setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    loadFountains();
-  }, [loadFountains]);
+    loadChargers();
+  }, [loadChargers]);
 
-  const handleSave = async (id: number, payload: FountainUpdatePayload) => {
-    const updated = await updateFountain(id, payload);
-    setFountains((prev) => prev.map((f) => (f.id === id ? updated : f)));
+  const handleSave = async (id: number, payload: ChargerUpdatePayload) => {
+    const updated = await updateCharger(id, payload);
+    setChargers((prev) => prev.map((c) => (c.id === id ? updated : c)));
   };
 
   return (
     <Container size="lg" py="xl">
       <Stack gap="lg">
         <Stack gap={4}>
-          <Title order={1}>公共饮水池图鉴</Title>
-          <Text c="dimmed">记录城市公共饮水点，便于出行补水参考</Text>
+          <Title order={1}>城市公共充电桩图鉴</Title>
+          <Text c="dimmed">记录城市公共充电桩信息，便于出行充电参考</Text>
         </Stack>
 
         {error && (
@@ -59,10 +59,10 @@ export default function App() {
           <Loader />
         ) : (
           <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
-            {fountains.map((fountain) => (
-              <FountainCard
-                key={fountain.id}
-                fountain={fountain}
+            {chargers.map((charger) => (
+              <ChargerCard
+                key={charger.id}
+                charger={charger}
                 onEdit={setEditing}
               />
             ))}
@@ -70,8 +70,8 @@ export default function App() {
         )}
       </Stack>
 
-      <FountainEditModal
-        fountain={editing}
+      <ChargerEditModal
+        charger={editing}
         opened={editing !== null}
         onClose={() => setEditing(null)}
         onSave={handleSave}

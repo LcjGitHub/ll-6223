@@ -7,42 +7,39 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import type { Fountain } from '../types';
+import type { Charger } from '../types';
 
-interface FountainCardProps {
-  fountain: Fountain;
-  onEdit: (fountain: Fountain) => void;
+interface ChargerCardProps {
+  charger: Charger;
+  onEdit: (charger: Charger) => void;
 }
 
-/**
- * 饮水点卡片
- */
-export function FountainCard({ fountain, onEdit }: FountainCardProps) {
+export function ChargerCard({ charger, onEdit }: ChargerCardProps) {
   return (
     <Card shadow="sm" padding="lg" radius="md" withBorder h="100%">
       <Stack justify="space-between" h="100%" gap="sm">
         <Stack gap="xs">
           <Group justify="space-between" align="flex-start">
-            <Title order={4}>{fountain.location}</Title>
-            <Badge variant="light" color="teal">
-              {fountain.type}
+            <Title order={4}>{charger.location}</Title>
+            <Badge variant="light" color="green">
+              {charger.chargerType}
             </Badge>
           </Group>
           <Text size="sm" c="dimmed">
-            {fountain.city}
+            {charger.city}
           </Text>
-          {fountain.waterQualityNote ? (
-            <Text size="sm">{fountain.waterQualityNote}</Text>
+          {charger.powerNote ? (
+            <Text size="sm">{charger.powerNote}</Text>
           ) : (
             <Text size="sm" c="dimmed" fs="italic">
-              暂无水质备注
+              暂无功率说明
             </Text>
           )}
           <Text size="xs" c="dimmed">
-            最后确认：{fountain.lastConfirmedDate}
+            最后核实：{charger.lastVerifiedDate}
           </Text>
         </Stack>
-        <Button variant="light" onClick={() => onEdit(fountain)}>
+        <Button variant="light" onClick={() => onEdit(charger)}>
           编辑
         </Button>
       </Stack>

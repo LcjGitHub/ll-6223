@@ -1,25 +1,19 @@
 import axios from 'axios';
-import type { Fountain, FountainUpdatePayload } from './types';
+import type { Charger, ChargerUpdatePayload } from './types';
 
 const client = axios.create({
   baseURL: '/api',
 });
 
-/**
- * 获取全部饮水点
- */
-export async function fetchFountains(): Promise<Fountain[]> {
-  const { data } = await client.get<Fountain[]>('/fountains');
+export async function fetchChargers(): Promise<Charger[]> {
+  const { data } = await client.get<Charger[]>('/chargers');
   return data;
 }
 
-/**
- * 更新饮水点
- */
-export async function updateFountain(
+export async function updateCharger(
   id: number,
-  payload: FountainUpdatePayload
-): Promise<Fountain> {
-  const { data } = await client.put<Fountain>(`/fountains/${id}`, payload);
+  payload: ChargerUpdatePayload
+): Promise<Charger> {
+  const { data } = await client.put<Charger>(`/chargers/${id}`, payload);
   return data;
 }
