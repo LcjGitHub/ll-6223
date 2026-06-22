@@ -1,6 +1,8 @@
 import {
   Alert,
+  Button,
   Container,
+  Group,
   Loader,
   SimpleGrid,
   Stack,
@@ -13,12 +15,20 @@ import { ChargerCard } from './components/ChargerCard';
 import { ChargerEditModal } from './components/ChargerEditModal';
 import type { Charger, ChargerUpdatePayload } from './types';
 
+/**
+ * 应用根组件
+ * @description 主页面，包含充电桩列表加载、卡片网格展示与编辑弹窗管理
+ */
 export default function App() {
   const [chargers, setChargers] = useState<Charger[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<Charger | null>(null);
 
+  /**
+   * 加载充电桩列表数据
+   * @description 从后端 API 获取所有充电桩数据，失败时设置错误信息
+   */
   const loadChargers = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -36,6 +46,12 @@ export default function App() {
     loadChargers();
   }, [loadChargers]);
 
+  /**
+   * 保存充电桩编辑
+   * @param id 充电桩 ID
+   * @param payload 更新数据
+   * @throws 当 API 请求失败时抛出异常，供弹窗组件显示错误
+   */
   const handleSave = async (id: number, payload: ChargerUpdatePayload) => {
     const updated = await updateCharger(id, payload);
     setChargers((prev) => prev.map((c) => (c.id === id ? updated : c)));
@@ -51,7 +67,14 @@ export default function App() {
 
         {error && (
           <Alert color="red" title="加载失败">
-            {error}
+            <Stack gap="sm">
+              <Text>{error}</Text>
+              <Group>
+                <Button onClick={loadChargers} variant="light" color="red">
+                  重新加载
+                </Button>
+              </Group>
+            </Stack>
           </Alert>
         )}
 
